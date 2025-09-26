@@ -31,7 +31,6 @@
   environment.systemPackages = with pkgs; [
     neovim 
     lazygit
-    gh
     neofetch
     wget
     git
