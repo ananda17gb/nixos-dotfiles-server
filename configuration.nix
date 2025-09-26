@@ -82,6 +82,7 @@
     git
     adguardhome
     ntfs3g
+    tailscale
   ];
 
  services.adguardhome = {
@@ -91,11 +92,11 @@
     port = 3000;
   };
 
+  services.tailscale.enable = true;
+
   # Open ports in the firewall.
   networking.firewall.allowedTCPPorts = [ 3000 80 3210 ];
-  networking.firewall.allowedUDPPorts = [ 53 ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  networking.firewall.allowedUDPPorts = [ 53 4164 ];
 
   services.resolved.enable = false;
 
@@ -117,7 +118,6 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
 
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
