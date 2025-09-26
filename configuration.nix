@@ -37,9 +37,6 @@
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
 
-
-  
-
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
@@ -67,15 +64,24 @@
     ];
   };
 
+  users.extraUsers.ananda = {
+    shell = pkgs.zsh;
+  };
+
   # programs.firefox.enable = true;
+  programs.zsh.enable = true;
 
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
   environment.systemPackages = with pkgs; [
-    vim 
+    neovim 
+    lazygit
+    gh
+    neofetch
     wget
     git
     adguardhome
+    ntfs3g
   ];
 
  services.adguardhome = {
@@ -86,7 +92,7 @@
   };
 
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 3000 80 ];
+  networking.firewall.allowedTCPPorts = [ 3000 80 3210 ];
   networking.firewall.allowedUDPPorts = [ 53 ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
