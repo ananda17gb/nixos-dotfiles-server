@@ -38,18 +38,23 @@
     ntfs3g
     tailscale
     filebrowser
+    php83
   ];
 
  services.adguardhome = {
     enable = true;
     openFirewall = true;
     mutableSettings = true;
-    port = 3000;
+    settings = {
+	    http = {
+	      address = "0.0.0.0:3000";
+	    };
+    };
   };
 
   services.tailscale.enable = true;
   networking.firewall.enable = true; 
-  networking.firewall.allowedTCPPorts = [ 3000 80 3030 ];
+  networking.firewall.allowedTCPPorts = [ 3000 80 3030 8080 ];
   networking.firewall.allowedUDPPorts = [ 53 4164 ];
   services.resolved.enable = false;
 
@@ -67,7 +72,6 @@
     "d /var/lib/noodledrive 0770 noodledrive noodledrive"
   ];
 
-  # 4. Define the systemd service (MODIFIED: ExecStart paths changed)
   systemd.services.noodledrive = {
     after = [ "network.target" "mnt-harddisk.mount"];
     wantedBy = [ "multi-user.target" ];
@@ -84,6 +88,34 @@
           --root /mnt/harddisk
       '';
     };
+  };
+
+  services.homepage-dashboard = {
+    enable = true;
+    listenPort = 8080;
+
+    services = [
+      { "Data & Storage" = [
+	    { "Filebrowser" = {
+	      href = "http://192.168.0.3:3030";
+	      description = "Access Server Files";
+	      icon = "filebrowser";
+	      };
+	    }
+        ];
+      }
+
+      { "Network Tools" = [
+	    { "AdGuard Home" = {
+	      href = "http://192.168.0.3:3000";
+	      description = "DNS Ad Blocker Admin";
+	      icon = "adguard-home";
+	      };
+	    }
+        ];
+      }
+    ];
+    allowedHosts = "192.168.0.3:${toString config.services.homepage-dashboard.listenPort}, 127.0.0.1:${toString config.services.homepage-dashboard.listenPort}, localhost:${toString config.services.homepage-dashboard.listenPort}";
   };
 
   system.stateVersion = "25.05"; # Did you read the comment?
