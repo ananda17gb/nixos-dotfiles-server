@@ -1,0 +1,19 @@
+services:
+  filebrowser:
+    image: gtstef/filebrowser
+    container_name: filebrowser-quantum
+    environment:
+      FILEBROWSER_CONFIG: "/home/filebrowser/data/config.yaml"
+      FILEBROWSER_ADMIN_PASSWORD: admin
+      # Uncomment and change this to set your timezone, e.g., "Asia/Jakarta"
+      TZ: "Asia/Jakarta" 
+    volumes:
+      # Volume 1: MOUNT YOUR ACTUAL FILES HERE
+      - '/mnt/harddisk/:/folder' 
+
+      # Volume 2: Configuration and Database (keep this path relative)
+      - './data:/home/filebrowser/data' 
+    ports:
+      # Host:Container - Access this service on port 80 of your server
+      - '7080:80' 
+    restart: unless-stopped

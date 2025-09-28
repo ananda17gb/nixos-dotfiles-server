@@ -16,7 +16,7 @@
 
   users.users.ananda = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "noodledrive" "docker" ]; 
+    extraGroups = [ "wheel" "docker" ]; 
     packages = with pkgs; [
       tree
     ];
@@ -54,7 +54,7 @@
 
   services.tailscale.enable = true;
   networking.firewall.enable = true; 
-  networking.firewall.allowedTCPPorts = [ 3000 80 3030 8080 2080 2443];
+  networking.firewall.allowedTCPPorts = [ 3000 80 8080 2080 2443 7080];
   networking.firewall.allowedUDPPorts = [ 53 4164 ];
   services.resolved.enable = false;
 
@@ -64,42 +64,16 @@
 
   services.openssh.enable = true;
 
-  users.users.noodledrive.isSystemUser = true;
-  users.users.noodledrive.group = "noodledrive";
-  users.groups.noodledrive = { };
-
-  systemd.tmpfiles.rules = [
-    "d /var/lib/noodledrive 0770 noodledrive noodledrive"
-  ];
-
-  systemd.services.noodledrive = {
-    after = [ "network.target" "mnt-harddisk.mount"];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "simple";
-      User = "noodledrive";
-      Restart = "on-failure";
-      # The ExecStart command now points to the new paths.
-      ExecStart = ''
-        ${pkgs.filebrowser}/bin/filebrowser \
-	  --address 0.0.0.0 \
-          --port 3030 \
-          --database /var/lib/noodledrive/filebrowser.db \
-          --root /mnt/harddisk
-      '';
-    };
-  };
-
   services.homepage-dashboard = {
     enable = true;
     listenPort = 8080;
 
     services = [
       { "Data & Storage" = [
-	    { "Filebrowser" = {
-	      href = "http://192.168.0.3:3030";
+	    { "Filebrowser Quantum" = {
+	      href = "http://192.168.0.3:7080";
 	      description = "Access Server Files";
-	      icon = "filebrowser";
+	      icon = "filebrowser-quantum";
 	      };
 	    }
         ];
@@ -110,6 +84,16 @@
 	      href = "http://192.168.0.3:3000";
 	      description = "DNS Ad Blocker Admin";
 	      icon = "adguard-home";
+	      };
+	    }
+        ];
+      }
+
+      { "Moodle & MariaDB" = [
+	    { "Moodle" = {
+	      href = "http://192.168.0.3:2080";
+	      description = "Moodle LMS";
+	      icon = "moodle";
 	      };
 	    }
         ];
