@@ -16,7 +16,7 @@
 
   users.users.ananda = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "noodledrive" ]; 
+    extraGroups = [ "wheel" "noodledrive" "docker" ]; 
     packages = with pkgs; [
       tree
     ];
@@ -38,7 +38,7 @@
     ntfs3g
     tailscale
     filebrowser
-    php83
+    docker-compose
   ];
 
  services.adguardhome = {
@@ -54,7 +54,7 @@
 
   services.tailscale.enable = true;
   networking.firewall.enable = true; 
-  networking.firewall.allowedTCPPorts = [ 3000 80 3030 8080 ];
+  networking.firewall.allowedTCPPorts = [ 3000 80 3030 8080 2080 2443];
   networking.firewall.allowedUDPPorts = [ 53 4164 ];
   services.resolved.enable = false;
 
@@ -116,6 +116,32 @@
       }
     ];
     allowedHosts = "192.168.0.3:${toString config.services.homepage-dashboard.listenPort}, 127.0.0.1:${toString config.services.homepage-dashboard.listenPort}, localhost:${toString config.services.homepage-dashboard.listenPort}";
+  };
+
+  virtualisation.docker = {
+    enable = true;
+  };
+
+  systemd.services.moodle-compose = {
+    description = "Moodle Docker Compose Service";
+    after = ["docker.service"];
+    requires = ["docker.service"];
+
+    path = [ pkgs.docker pkgs.docker-compose ];
+    script = '' 
+      docker compose -f "/etc/my-moodle-service/docker-compose.yml" up -d
+    '';
+
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStop = ''
+        ${pkgs.docker}/bin/docker compose -f "/etc/my-moodle-service/docker-compose.yml"  down
+      '';
+      User = "root"; 
+      WorkingDirectory = "/etc/my-moodle-service"; # Important for relative paths in compose file
+    };
+    wantedBy = [ "multi-user.target" ];
   };
 
   system.stateVersion = "25.05"; # Did you read the comment?
